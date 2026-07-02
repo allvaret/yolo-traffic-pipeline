@@ -1,0 +1,101 @@
+# Define quais fontes alimentam cada classe nova.
+#
+# Cada classe (exceto baseline_coco) tem:
+#   target_class_id: id global unificado (ver config/classes.yaml)
+#   sources: lista de 1 OU MAIS fontes. Cada item tem seu proprio "adapter" e
+#            parametros especificos daquele adapter. Todas as fontes de uma
+#            mesma classe sao convertidas e remapeadas para o MESMO target_class_id,
+#            e depois unificadas (o dedup em src/dedup.py roda no conjunto todo,
+#            entao duplicatas entre fontes diferentes da mesma classe sao removidas
+#            automaticamente).
+#
+# Exemplo de classe com 2 fontes: veja "pothole" abaixo (RDD2022 + Roboflow).
+
+baseline_coco:
+  adapter: coco_baseline
+  images_per_class: 100
+  # usa a mesma lista COCO_CLASSES de config/classes.yaml automaticamente
+
+traffic_sign:
+  target_class_id: 80
+  sources:
+    - adapter: tt100k
+      # TT100K tem 221 subclasses de placas; por padrao TODAS sao unificadas na
+      # classe "traffic_sign". Se quiser manter granularidade, edite o mapeamento
+      # em src/sources/tt100k_source.py -> SIGN_GROUP_MAP
+      max_images: 500   # teto pra nao explodir o dataset (TT100K tem ~18GB no total)
+
+pothole:
+  target_class_id: 84
+  sources:
+    - adapter: rdd2022
+      filter_original_classes: ["D40", "D43", "D44"]   # variacoes de "pothole" no RDD2022
+      countries: ["Japan", "India", "Czech", "United_States"]  # ajuste conforme quiser
+      max_images: 500
+    # Segunda fonte, opcional: um dataset do Roboflow Universe tambem focado em
+    # buracos, pra aumentar a diversidade de angulos/paises alem do RDD2022.
+    # Descomente e preencha se quiser combinar as duas:
+    # - adapter: roboflow
+    #   workspace: "PREENCHER"
+    #   project: "PREENCHER"
+    #   version: 1
+    #   source_class_names: ["pothole", "Pothole", "road-damage"]
+    #   max_images: 1000
+
+# ==== Classes via Roboflow Universe ====
+# PREENCHA workspace/project/version depois de escolher o dataset em
+# https://universe.roboflow.com/search?q=class:<nome_da_classe>
+#
+# Como preencher: a URL de um projeto do Universe tem o formato
+#   https://universe.roboflow.com/<workspace>/<project>
+# e a versao aparece na aba "Versions" do projeto (geralmente comece testando version: 1).
+
+pedestrian_light:
+  target_class_id: 81
+  sources:
+    - adapter: roboflow
+      workspace: "trafficlightannotation"
+      project: "trafficlight_3"
+      version: 1
+      source_class_names: ["pedestrian Traffic Light", "pedestrian-green-light", "pedestrian-red-light"]
+      max_images: 100
+    # Exemplo de uma SEGUNDA fonte pra mesma classe: outro dataset Roboflow com
+    # nomenclatura diferente pra semaforo de pedestre.
+    - adapter: roboflow
+      workspace: "traffic-lde2i"
+      project: "real_traffic-qmsku"
+      version: 1
+      source_class_names: ["red", "green"]
+      max_images: 350
+
+crosswalk:
+  target_class_id: 82
+  sources:
+    - adapter: roboflow
+      workspace: "project-sgd9c"
+      project: "crosswalk-deteccting"
+      version: 1
+      source_class_names: ["crosswalk"]
+      max_images: 450
+
+traffic_cone:
+  target_class_id: 83
+  sources:
+    - adapter: roboflow
+      workspace: "conedetection-lmsjf"
+      project: "traffic-cone-sqamr"
+      version: 1
+      source_class_names: ["traffic cone", "Traffic cone", "Safety Cone", "Cone"]
+      max_images: 300
+    - adapter: roboflow
+      workspace: "kittisak"
+      project: "cone-person-truck"
+      version: 1
+      source_class_names: ["cone"]
+      max_images: 110
+
+# Parametros globais de dataset
+dataset:
+  val_split: 0.15
+  test_split: 0.0   # 0.0 desativa o split de teste (fica so train/val)
+  dedup_hash_threshold: 5   # distancia de hamming maxima pra considerar imagem duplicada

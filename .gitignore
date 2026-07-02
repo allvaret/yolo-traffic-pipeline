@@ -1,0 +1,9 @@
+.env
+work/
+dataset/
+runs/
+reports/
+*.pt
+__pycache__/
+*.pyc
+.ipynb_checkpoints/
