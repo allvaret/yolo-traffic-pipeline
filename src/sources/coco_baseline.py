@@ -7,7 +7,6 @@ Não representa uma classe "nova"; por isso não tem target_class_id fixo — os
 já vêm corretos do próprio COCO (0-79), então aqui só copiamos direto.
 """
 
-import shutil
 from pathlib import Path
 
 from .base import DatasetSource, YoloSample
@@ -39,6 +38,8 @@ class COCOBaselineSource(DatasetSource):
             export_dir=str(export_dir),
             dataset_type=fo.types.YOLOv5Dataset,
             classes=coco_classes,
+            split="train",
+            export_media="symlink",
         )
         return export_dir
 

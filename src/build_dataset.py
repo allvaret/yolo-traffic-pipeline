@@ -3,6 +3,7 @@ Junta as amostras já convertidas de todas as fontes, remove duplicatas, separa
 train/val(/test) e escreve o data.yaml final consumido pelo treino do YOLO.
 """
 
+import os
 import random
 import shutil
 from pathlib import Path
@@ -26,6 +27,18 @@ ADAPTER_CLASSES = {
 
 # chaves do sources.yaml que NÃO são definições de classe (não têm "sources: [...]")
 RESERVED_KEYS = {"baseline_coco", "dataset"}
+
+
+def _link_or_copy_image(src: Path, dst: Path) -> None:
+    """
+    Usa link simbólico em vez de copiar bytes. Cai pra cópia
+    física só se o symlink falhar por algum motivo (ex: sistema de arquivos que
+    não suporta, como certas montagens de rede).
+    """
+    try:
+        os.symlink(os.path.realpath(src), dst)
+    except OSError:
+        shutil.copy(src, dst)
 
 
 def load_config(config_dir: Path) -> tuple[dict, dict]:
@@ -110,7 +123,7 @@ def split_and_write(
         stem = f"{sample.source_name}_{i:06d}"
         out_img = dataset_root / "images" / split / (stem + sample.image_path.suffix)
         out_lbl = dataset_root / "labels" / split / (stem + ".txt")
-        shutil.copy(sample.image_path, out_img)
+        _link_or_copy_image(sample.image_path, out_img)
         shutil.copy(sample.label_path, out_lbl)
 
     print(

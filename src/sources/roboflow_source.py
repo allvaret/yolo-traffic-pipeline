@@ -12,7 +12,6 @@ https://roboflow.com). A partir daí, o download é 100% programático.
 """
 
 import os
-import shutil
 from pathlib import Path
 
 from .base import DatasetSource, YoloSample
@@ -113,12 +112,9 @@ class RoboflowSource(DatasetSource):
                 if not remapped:
                     continue
 
-                out_img = out_dir / img_path.name
                 out_lbl = out_dir / (img_path.stem + ".txt")
-                if not out_img.exists():
-                    shutil.copy(img_path, out_img)
                 out_lbl.write_text("\n".join(remapped))
 
-                samples.append(YoloSample(out_img, out_lbl, f"{self.name}_{self.instance_key}"))
+                samples.append(YoloSample(img_path, out_lbl, f"{self.name}_{self.instance_key}"))
 
         return samples

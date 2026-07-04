@@ -9,7 +9,6 @@ para o nosso id global unificado "traffic_sign".
 Licença do dataset original: CC BY-NC 2.0 (uso não-comercial).
 """
 
-import shutil
 from pathlib import Path
 
 from .base import DatasetSource, YoloSample
@@ -62,13 +61,10 @@ class TT100KSource(DatasetSource):
                 if not remapped_lines:
                     continue
 
-                out_img = out_split_dir / img_path.name
                 out_lbl = out_split_dir / (img_path.stem + ".txt")
-                if not out_img.exists():
-                    shutil.copy(img_path, out_img)
                 out_lbl.write_text("\n".join(remapped_lines))
 
-                samples.append(YoloSample(out_img, out_lbl, self.name))
+                samples.append(YoloSample(img_path, out_lbl, self.name))
 
         # NÃO corta por max_images aqui — isso é feito de forma centralizada e
         # aleatória em DatasetSource.run() (ver src/sources/base.py:limit_samples),
