@@ -57,7 +57,7 @@ pedestrian_light:
       workspace: "trafficlightannotation"
       project: "trafficlight_3"
       version: 1
-      source_class_names: ["pedestrian Traffic Light", "pedestrian-green-light", "pedestrian-red-light"]
+      source_class_names: ["traffic_light"]
       max_images: 100
     # Exemplo de uma SEGUNDA fonte pra mesma classe: outro dataset Roboflow com
     # nomenclatura diferente pra semaforo de pedestre.
@@ -85,7 +85,7 @@ traffic_cone:
       workspace: "conedetection-lmsjf"
       project: "traffic-cone-sqamr"
       version: 1
-      source_class_names: ["traffic cone", "Traffic cone", "Safety Cone", "Cone"]
+      source_class_names: ["trafficcone"]
       max_images: 300
     - adapter: roboflow
       workspace: "kittisak"
