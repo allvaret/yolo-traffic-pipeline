@@ -88,7 +88,7 @@ traffic_cone:
       source_class_names: ["trafficcone"]
       max_images: 300
     - adapter: roboflow
-      workspace: "kittisak"
+      workspace: "kittisak-s"
       project: "cone-person-truck"
       version: 25
       source_class_names: ["cone"]
